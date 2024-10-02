@@ -1,0 +1,40 @@
+spring:
+    application:
+        name: indian-ad-api
+
+    jpa:
+        hibernate:
+            ddl-auto: update
+        database: postgresql
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+    datasource:
+        driver-class-name: org.postgresql.Driver
+        url: jdbc:postgresql://localhost:5433/mydb
+        username: root
+        password: pass
+
+    data:
+       mongodb:
+           username: root
+           password: pass
+           host: localhost
+           port: 27020
+           database: mydb
+           authentication-database: admin
+server:
+    port: 8080
+    error:
+        include-message: always
+
+security:
+
+    jwt:
+        secret: 48a868a4042f634ac04a117f00a87202131dd7c46c4b32c4acb3edc5e15f4511
+#        lifetime: 3600000 # 60 min
+        lifetime: 180000 # 3 min
+
+    refresh:
+#        lifetime: 36000000 # 600 min
+        lifetime: 300000 # 5 min
+
