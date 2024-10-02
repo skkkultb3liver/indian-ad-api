@@ -39,14 +39,14 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                HttpMethod.POST, "/api/v1/auth/**"
-                        ).permitAll()
-                        .requestMatchers(
-                                "/api/v1/info",
-                                "/swagger-ui/index.html"
-                        ).permitAll()
-                                .anyRequest().authenticated() // authenticated()
+//                        .requestMatchers(
+//                                HttpMethod.POST, "/api/v1/auth/**"
+//                        ).permitAll()
+//                        .requestMatchers(
+//                                "/api/v1/info",
+//                                "/swagger-ui/index.html"
+//                        ).permitAll()
+                        .anyRequest().permitAll() // authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

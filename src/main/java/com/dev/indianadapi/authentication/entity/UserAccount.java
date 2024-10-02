@@ -1,5 +1,6 @@
 package com.dev.indianadapi.authentication.entity;
 
+import com.dev.indianadapi.balance.Balance;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,6 +30,9 @@ public class UserAccount implements UserDetails {
     private String email;
 
     private String password;
+
+    @OneToOne(mappedBy = "userAccount", cascade = CascadeType.ALL)
+    private Balance balance;
 
     @Enumerated(EnumType.STRING)
     private RoleEntity role;

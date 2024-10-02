@@ -26,17 +26,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         );
     }
 
-    public UserAccount saveUser(UserAccount user) {
-        log.info("CustomUSerDetailsService: TRY TO SAVE USER ACCOUNT");
-        return repository.save(user);
-    }
-
-    @Transactional
-    public void deleteUser(Long userId) {
-        repository.deleteById(userId);
-    }
-
-
     public UserAccount findUserByJwt(String token) {
         String jwt = token.substring(7);
         String userEmail = jwtService.extractUsername(jwt);
@@ -46,21 +35,4 @@ public class CustomUserDetailsService implements UserDetailsService {
         );
     }
 
-    public UserAccount findUserById(Long userId) {
-        return repository.findById(userId).orElseThrow(
-                () -> new UsernameNotFoundException("Не удалось найти пользователя")
-        );
-    }
-
-    public UserAccount findUserByUid(String uid) {
-        return repository.findByUid(uid).orElseThrow(
-                () -> new UsernameNotFoundException("Не удалось найти пользователя")
-        );
-    }
-
-    public UserAccount findUserByEmail(String email) {
-        return repository.findByEmail(email).orElseThrow(
-                () -> new UsernameNotFoundException("Не удалось найти пользователя")
-        );
-    }
 }

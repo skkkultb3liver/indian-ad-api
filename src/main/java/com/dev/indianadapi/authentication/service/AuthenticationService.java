@@ -7,6 +7,7 @@ import com.dev.indianadapi.authentication.dto.SignUpRequest;
 import com.dev.indianadapi.authentication.entity.RefreshToken;
 import com.dev.indianadapi.authentication.entity.RoleEntity;
 import com.dev.indianadapi.authentication.entity.UserAccount;
+import com.dev.indianadapi.balance.BalanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -24,8 +25,10 @@ public class AuthenticationService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService tokenService;
-    private final CustomUserDetailsService userDetailsService;
+    private final UserAccountService userAccountService;
     private final JwtService jwtService;
+
+    private final BalanceService balanceService;
 
     private JwtAuthResponse authenticateUser(String userEmail, String userPassword) {
 
@@ -37,7 +40,7 @@ public class AuthenticationService {
                     new UsernamePasswordAuthenticationToken(userEmail, userPassword)
             );
 
-            var user = userDetailsService.findUserByEmail(userEmail);
+            var user = userAccountService.findUserAccountByEmail(userEmail);
             var jwt = jwtService.generateToken(user);
             var refreshToken = tokenService.generateToken(userEmail);
 
@@ -70,7 +73,9 @@ public class AuthenticationService {
 
         try {
 
-            userDetailsService.saveUser(createdUser);
+            UserAccount userAccount = userAccountService.saveUser(createdUser);
+            balanceService.createUserAccountBalance(userAccount);
+
             return "Вы успешно зарегистрировались! Пожалуйста, войдите в аккаунт";
         }
         catch (Exception e) {
