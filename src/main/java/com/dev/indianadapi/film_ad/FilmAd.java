@@ -23,9 +23,19 @@ public class FilmAd {
 
     private String title;
     private String description;
-    private String photoUrl;
+    private String imageUrl;
 
+    @ManyToMany
+    @JoinTable(
+            name = "film_ad_views",
+            joinColumns = @JoinColumn(name = "film_ad_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_account_id")
+    )
+    private Set<UserAccount> viewedByUserAccounts = new HashSet<>();
+
+    @Transient
     private Integer views;
+
     private Integer investedCoins;
 
     @ManyToOne
@@ -34,9 +44,19 @@ public class FilmAd {
 
     @ManyToMany
     @JoinTable(
-            name = "film_ad_tags",
+            name = "film_ads_tags",
             joinColumns = @JoinColumn(name = "film_ad_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private Set<Tag> tags = new HashSet<>();
+
+
+    public Integer getViews() {
+
+        if (viewedByUserAccounts == null || viewedByUserAccounts.isEmpty()) {
+            return 0;
+        }
+
+        return viewedByUserAccounts.size();
+    }
 }
