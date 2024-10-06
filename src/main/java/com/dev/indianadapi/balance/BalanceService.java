@@ -4,7 +4,6 @@ import com.dev.indianadapi.authentication.entity.UserAccount;
 import com.dev.indianadapi.authentication.service.UserAccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -34,7 +33,7 @@ public class BalanceService {
     public Balance createUserAccountBalance(UserAccount userAccount) {
 
         Balance balance = Balance.builder()
-                .coins(10)
+                .balance(10)
                 .userAccount(userAccount)
                 .build();
 
@@ -45,7 +44,7 @@ public class BalanceService {
 
         Balance balance = balanceRepository.findByUserAccountId(userAccountId)
                 .orElseThrow(() -> new RuntimeException("Баланс не найден"));
-        balance.setCoins(balance.getCoins() + amount);
+        balance.setBalance(balance.getBalance() + amount);
 
         balanceRepository.save(balance);
     }
@@ -55,10 +54,10 @@ public class BalanceService {
         Balance balance = balanceRepository.findByUserAccountId(userAccountId)
                 .orElseThrow(() -> new RuntimeException("Баланс не найден"));
 
-        if (balance.getCoins() < amount) {
+        if (balance.getBalance() < amount) {
             throw new RuntimeException("Недостаточно средств на балансе");
         }
-        balance.setCoins(balance.getCoins() - amount);
+        balance.setBalance(balance.getBalance() - amount);
 
         balanceRepository.save(balance);
     }

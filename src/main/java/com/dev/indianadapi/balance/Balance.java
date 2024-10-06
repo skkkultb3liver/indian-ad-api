@@ -16,7 +16,7 @@ public class Balance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer coins;
+    private Integer balance;
 
     @OneToOne
     @JoinColumn(name = "user_account_id", referencedColumnName = "id")

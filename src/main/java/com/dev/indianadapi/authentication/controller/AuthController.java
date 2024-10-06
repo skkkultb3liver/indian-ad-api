@@ -9,25 +9,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthenticationService service;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
     public ResponseEntity<?> signUpHandler(
-            @RequestBody SignUpRequest request
+            @RequestPart("signUpRequest") SignUpRequest request,
+            @RequestPart("image") MultipartFile image,
+            @RequestPart("imageType") String imageType
     ) {
         try {
 
-            String response = service.signUp(request);
+            String response = authenticationService.signUp(request, image, imageType);
             return ResponseEntity.ok(response);
 
         } catch (DataIntegrityViolationException e) {
@@ -41,7 +41,7 @@ public class AuthController {
     ) {
         try {
 
-            JwtAuthResponse response = service.signIn(request);
+            JwtAuthResponse response = authenticationService.signIn(request);
             return ResponseEntity.ok(response);
 
         } catch (UsernameNotFoundException e) {
@@ -55,7 +55,7 @@ public class AuthController {
             @RequestBody RefreshTokenRequest request
     ) {
         try {
-            JwtAuthResponse response = service.refreshToken(request);
+            JwtAuthResponse response = authenticationService.refreshToken(request);
             return ResponseEntity.ok(response);
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

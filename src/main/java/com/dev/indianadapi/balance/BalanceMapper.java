@@ -13,7 +13,7 @@ public class BalanceMapper {
 
         return new BalanceResponse(
                 balance.getId(),
-                balance.getCoins(),
+                balance.getBalance(),
                 balance.getUserAccount().getId()
         );
     }

@@ -11,7 +11,6 @@ public class FilmAdRequest {
 
     private String title;
     private String description;
-    private String imageUrl;
     private Set<String> tagsSlugs;
 
 

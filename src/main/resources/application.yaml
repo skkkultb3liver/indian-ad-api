@@ -14,15 +14,6 @@ spring:
         username: root
         password: pass
 
-    data:
-       mongodb:
-           username: root
-           password: pass
-           host: localhost
-           port: 27020
-           database: mydb
-           authentication-database: admin
-
     servlet:
         multipart:
             enabled: true

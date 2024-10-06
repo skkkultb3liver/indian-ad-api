@@ -6,9 +6,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -17,6 +19,7 @@ public class S3Service {
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
+    private final String bucketUrl = "https://" + bucketName + "storage.yandexcloud.net/";
 
     private final S3Client s3Client;
 
@@ -34,12 +37,21 @@ public class S3Service {
 
     private String uploadToS3(MultipartFile file, String folderName) {
 
+        Set<String> SUPPORTED_CONTENT_TYPES = Set.of(
+                "image/jpeg",
+                "image/png",
+                "image/ico",
+                "image/webp",
+                "image/svg"
+        );
+
         try {
 
             String contentType = file.getContentType();
 
             assert contentType != null;
-            if (!contentType.equals("image/jpeg")) {
+
+            if (!SUPPORTED_CONTENT_TYPES.contains(contentType)) {
                 throw new IllegalArgumentException("Данный файл не является изображением");
             }
 
@@ -67,6 +79,21 @@ public class S3Service {
 
     }
 
+    public void deleteFileByUrl(String fileUrl) {
+
+        String fileKey = extractKeyFromUrl(fileUrl);
+
+        if (fileKey == null) return;
+
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileKey)
+                .build();
+
+        s3Client.deleteObject(deleteObjectRequest);
+
+    }
+
     public String getFileUrl(String fileName) {
 
         return s3Client.utilities().getUrl(
@@ -75,6 +102,15 @@ public class S3Service {
                     .key(fileName)
         )
         .toExternalForm();
+    }
+
+    private String extractKeyFromUrl(String fileUrl) {
+
+        if (fileUrl.startsWith(bucketUrl)) {
+            return fileUrl.substring(bucketUrl.length());
+        }
+
+        return null;
     }
 
 }

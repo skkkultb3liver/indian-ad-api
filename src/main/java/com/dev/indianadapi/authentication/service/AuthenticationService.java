@@ -8,6 +8,7 @@ import com.dev.indianadapi.authentication.entity.RefreshToken;
 import com.dev.indianadapi.authentication.entity.RoleEntity;
 import com.dev.indianadapi.authentication.entity.UserAccount;
 import com.dev.indianadapi.balance.BalanceService;
+import com.dev.indianadapi.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -16,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +29,7 @@ public class AuthenticationService {
     private final RefreshTokenService tokenService;
     private final UserAccountService userAccountService;
     private final JwtService jwtService;
+    private final S3Service s3Service;
 
     private final BalanceService balanceService;
 
@@ -60,11 +63,16 @@ public class AuthenticationService {
 
     }
 
-    public String signUp(SignUpRequest request) {
+    public String signUp(
+            SignUpRequest request,
+            MultipartFile image,
+            String imageType
+    ) {
 
         UserAccount createdUser = UserAccount.builder()
                 .email(request.userEmail())
-                .uid(request.uid())
+                .uid("@" + request.uid())
+                .avatarUrl(s3Service.uploadImage(image, imageType))
                 .password(passwordEncoder.encode(request.password()))
                 .role(RoleEntity.ROLE_USER)
                 .build();
