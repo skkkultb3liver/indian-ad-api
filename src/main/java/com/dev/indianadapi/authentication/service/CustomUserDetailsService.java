@@ -35,4 +35,20 @@ public class CustomUserDetailsService implements UserDetailsService {
         );
     }
 
+    public UserAccount saveUser(UserAccount user) {
+        return repository.save(user);
+    }
+
+    public UserAccount findUserAccountById(Long userId) {
+        return repository.findById(userId).orElseThrow(
+                () -> new UsernameNotFoundException("Не удалось найти пользователя")
+        );
+    }
+
+    public UserAccount findUserAccountByEmail(String email) {
+        return repository.findByEmail(email).orElseThrow(
+                () -> new UsernameNotFoundException("Не удалось найти пользователя")
+        );
+    }
+
 }

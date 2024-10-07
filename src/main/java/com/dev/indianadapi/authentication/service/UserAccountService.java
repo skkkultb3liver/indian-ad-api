@@ -5,6 +5,8 @@ import com.dev.indianadapi.authentication.entity.UserAccount;
 import com.dev.indianadapi.authentication.repository.UserAccountRepository;
 import com.dev.indianadapi.film_ad.FilmAdService;
 import com.dev.indianadapi.film_ad.dto.FilmAdResponse;
+import com.dev.indianadapi.investment.InvestmentResponse;
+import com.dev.indianadapi.investment.InvestmentService;
 import com.dev.indianadapi.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,22 +24,7 @@ public class UserAccountService {
     private final CustomUserDetailsService userDetailsService;
     private final FilmAdService filmAdService;
     private final S3Service s3Service;
-
-    public UserAccount saveUser(UserAccount user) {
-        return repository.save(user);
-    }
-
-    public UserAccount findUserAccountById(Long userId) {
-        return repository.findById(userId).orElseThrow(
-                () -> new UsernameNotFoundException("Не удалось найти пользователя")
-        );
-    }
-
-    public UserAccount findUserAccountByEmail(String email) {
-        return repository.findByEmail(email).orElseThrow(
-                () -> new UsernameNotFoundException("Не удалось найти пользователя")
-        );
-    }
+    private final InvestmentService investmentService;
 
     public UserAccountProfileResponse getUserProfile(String uid, String viewerJwt) {
 
@@ -47,6 +34,7 @@ public class UserAccountService {
 
         boolean isProfileOwner = isProfileOwner(userAccount, viewerJwt);
         List<FilmAdResponse> filmAds = filmAdService.findFilmAdsByUserAccountId(userAccount.getId());
+        List<InvestmentResponse> investments = investmentService.getUserAccountInvestments(viewerJwt);
 
         return UserAccountProfileResponse.builder()
                 .uid(uid)
@@ -54,6 +42,7 @@ public class UserAccountService {
                 .filmAds(filmAds)
                 .avatarUrl(userAccount.getAvatarUrl())
                 .balance(userAccount.getBalance().getBalance())
+                .investments(isProfileOwner ? investments : null)
                 .build();
 
     }
@@ -78,7 +67,7 @@ public class UserAccountService {
             s3Service.deleteFileByUrl(oldAvatarUrl);
         }
 
-        this.saveUser(userAccount);
+        userDetailsService.saveUser(userAccount);
 
     }
 

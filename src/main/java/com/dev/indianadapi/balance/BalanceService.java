@@ -1,7 +1,7 @@
 package com.dev.indianadapi.balance;
 
 import com.dev.indianadapi.authentication.entity.UserAccount;
-import com.dev.indianadapi.authentication.service.UserAccountService;
+import com.dev.indianadapi.authentication.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,16 +12,16 @@ import org.springframework.stereotype.Service;
 public class BalanceService {
 
     private final BalanceRepository balanceRepository;
-    private final UserAccountService userAccountService;
+    private final CustomUserDetailsService userDetailsService;
 
     private final BalanceMapper balanceMapper;
 
 
     public BalanceResponse getBalanceByUserAccountId(Long userAccountId) {
 
-        log.info("Get balance by id: " + userAccountId);
+        log.info("Get balance by id: {}", userAccountId);
 
-        UserAccount user = userAccountService.findUserAccountById(userAccountId);
+        UserAccount user = userDetailsService.findUserAccountById(userAccountId);
 
         Balance balance =  balanceRepository.findByUserAccount(user)
                 .orElseThrow(() -> new RuntimeException("Balance not found"));
@@ -40,7 +40,7 @@ public class BalanceService {
         return balanceRepository.save(balance);
     }
 
-    public void addCoins(Long userAccountId, Integer amount) {
+    public void add(Long userAccountId, Integer amount) {
 
         Balance balance = balanceRepository.findByUserAccountId(userAccountId)
                 .orElseThrow(() -> new RuntimeException("Баланс не найден"));
@@ -49,7 +49,7 @@ public class BalanceService {
         balanceRepository.save(balance);
     }
 
-    public void deductCoins(Long userAccountId, Integer amount) {
+    public void deduct(Long userAccountId, Integer amount) {
 
         Balance balance = balanceRepository.findByUserAccountId(userAccountId)
                 .orElseThrow(() -> new RuntimeException("Баланс не найден"));
@@ -59,6 +59,10 @@ public class BalanceService {
         }
         balance.setBalance(balance.getBalance() - amount);
 
+        balanceRepository.save(balance);
+    }
+
+    public void saveBalance(Balance balance) {
         balanceRepository.save(balance);
     }
 

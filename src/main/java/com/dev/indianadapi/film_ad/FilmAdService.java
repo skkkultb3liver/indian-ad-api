@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -125,6 +126,13 @@ public class FilmAdService {
         return repository.findAllByUserAccountId(userAccountId).stream().map(
                 filmAdMapper::filmAdToResponse
         ).collect(Collectors.toList());
+    }
+
+    public FilmAd getById(Long filmAdId) {
+
+        return repository.findById(filmAdId).orElseThrow(
+                () -> new UsernameNotFoundException("Не удалось найти рекламу")
+        );
     }
 
 }

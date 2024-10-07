@@ -27,7 +27,7 @@ public class AuthenticationService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService tokenService;
-    private final UserAccountService userAccountService;
+    private final CustomUserDetailsService userDetailsService;
     private final JwtService jwtService;
     private final S3Service s3Service;
 
@@ -43,7 +43,7 @@ public class AuthenticationService {
                     new UsernamePasswordAuthenticationToken(userEmail, userPassword)
             );
 
-            var user = userAccountService.findUserAccountByEmail(userEmail);
+            var user = userDetailsService.findUserAccountByEmail(userEmail);
             var jwt = jwtService.generateToken(user);
             var refreshToken = tokenService.generateToken(userEmail);
 
@@ -81,7 +81,7 @@ public class AuthenticationService {
 
         try {
 
-            UserAccount userAccount = userAccountService.saveUser(createdUser);
+            UserAccount userAccount = userDetailsService.saveUser(createdUser);
             balanceService.createUserAccountBalance(userAccount);
 
             return "Вы успешно зарегистрировались! Пожалуйста, войдите в аккаунт";

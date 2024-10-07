@@ -1,6 +1,7 @@
 package com.dev.indianadapi.authentication.dto;
 
 import com.dev.indianadapi.film_ad.dto.FilmAdResponse;
+import com.dev.indianadapi.investment.InvestmentResponse;
 import lombok.*;
 
 import java.util.List;
@@ -17,5 +18,7 @@ public class UserAccountProfileResponse {
     private List<FilmAdResponse> filmAds;
     private String email;
     private int balance;
+
+    private List<InvestmentResponse> investments;
 
 }

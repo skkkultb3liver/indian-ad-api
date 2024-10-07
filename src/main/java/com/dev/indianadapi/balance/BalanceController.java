@@ -24,13 +24,13 @@ public class BalanceController {
 
     @PostMapping("/add")
     public ResponseEntity<String> addCoins(@RequestParam Long userId, @RequestParam int amount) {
-        balanceService.addCoins(userId, amount);
+        balanceService.add(userId, amount);
         return ResponseEntity.ok("Успешно");
     }
 
     @PostMapping("/deduct")
     public ResponseEntity<?> deductCoins(@RequestParam Long userId, @RequestParam int amount) {
-        balanceService.deductCoins(userId, amount);
+        balanceService.deduct(userId, amount);
         return ResponseEntity.ok("Успешно");
     }
 
