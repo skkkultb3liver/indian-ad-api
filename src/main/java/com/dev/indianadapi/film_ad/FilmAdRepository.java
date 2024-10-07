@@ -18,4 +18,10 @@ public interface FilmAdRepository extends JpaRepository<FilmAd, Long> {
 
     @Query("SELECT f FROM FilmAd f JOIN f.tags t WHERE t.slug IN :tagsSlugs")
     Page<FilmAd> findByTagsSlugsIn(@Param("tagsSlugs") Set<String> tagsSlugs, Pageable pageable);
+
+    @Query(value = "SELECT * FROM film_ads ORDER BY total_investment DESC LIMIT 10", nativeQuery = true)
+    List<FilmAd> findTop10ByOrderByTotalInvestmentDesc();
+
+    @Query("SELECT f FROM FilmAd f WHERE f.totalInvestment NOT IN (SELECT f.totalInvestment FROM FilmAd f ORDER BY f.totalInvestment DESC LIMIT 10)")
+    List<FilmAd> findAllOutsideTop10();
 }

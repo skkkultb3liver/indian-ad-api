@@ -18,6 +18,7 @@ public class FilmAdMapper {
                 .tags(filmAd.getTags())
                 .imageUrl(filmAd.getImageUrl())
                 .userAccountId(filmAd.getUserAccount().getId())
+                .creationCost(filmAd.getCreationCost())
                 .build();
     }
 

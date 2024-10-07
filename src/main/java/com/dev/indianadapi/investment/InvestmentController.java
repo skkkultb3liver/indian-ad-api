@@ -21,13 +21,23 @@ public class InvestmentController {
         return ResponseEntity.ok(investmentService.getUserAccountInvestments(accessToken));
     }
 
-    @PostMapping("/invest")
+    @PostMapping("/")
     public ResponseEntity<String> investHandler(
             @RequestHeader("Authorization") String accessToken,
             @RequestParam Long filmId,
             @RequestParam Integer amount
     ) {
         investmentService.invest(accessToken, filmId, amount);
+
+        return ResponseEntity.ok("Успешно");
+    }
+
+    @DeleteMapping("/")
+    public ResponseEntity<String> deleteInvestment(
+            @RequestHeader("Authorization") String accessToken,
+            @RequestParam("filmAdId") Long filmAdId
+    ) {
+        investmentService.deleteInvestment(accessToken, filmAdId);
 
         return ResponseEntity.ok("Успешно");
     }

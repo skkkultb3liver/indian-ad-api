@@ -9,6 +9,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Builder
 public class Balance {
 
@@ -20,5 +21,6 @@ public class Balance {
 
     @OneToOne
     @JoinColumn(name = "user_account_id", referencedColumnName = "id")
+    @ToString.Exclude
     private UserAccount userAccount;
 }

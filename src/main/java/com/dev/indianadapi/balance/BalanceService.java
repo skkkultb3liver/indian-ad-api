@@ -17,7 +17,7 @@ public class BalanceService {
     private final BalanceMapper balanceMapper;
 
 
-    public BalanceResponse getBalanceByUserAccountId(Long userAccountId) {
+    public Balance getBalanceByUserAccountId(Long userAccountId) {
 
         log.info("Get balance by id: {}", userAccountId);
 
@@ -26,9 +26,10 @@ public class BalanceService {
         Balance balance =  balanceRepository.findByUserAccount(user)
                 .orElseThrow(() -> new RuntimeException("Balance not found"));
 
-        return balanceMapper.balanceToResponse(balance);
+        return balance;
 
     }
+
 
     public Balance createUserAccountBalance(UserAccount userAccount) {
 

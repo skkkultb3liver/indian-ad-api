@@ -17,4 +17,6 @@ public class FilmAdResponse {
     private Integer views;
     private Long userAccountId;
     private Set<Tag> tags;
+
+    private Integer creationCost;
 }

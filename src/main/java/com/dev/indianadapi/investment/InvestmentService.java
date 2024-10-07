@@ -6,8 +6,10 @@ import com.dev.indianadapi.balance.Balance;
 import com.dev.indianadapi.balance.BalanceService;
 import com.dev.indianadapi.film_ad.FilmAd;
 import com.dev.indianadapi.film_ad.FilmAdService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,7 +33,6 @@ public class InvestmentService {
     ) {
 
         UserAccount userAccount = userDetailsService.findUserByJwt(accessToken);
-        Balance userBalance = userAccount.getBalance();
         FilmAd filmAd = filmAdService.getById(filmAdId);
 
         if (filmAd.getUserAccount().equals(userAccount)) {
@@ -42,7 +43,7 @@ public class InvestmentService {
             throw new IllegalArgumentException("Вы должны инвестировать какую то сумму");
         }
 
-        if (userBalance.getBalance() < amount) {
+        if (userAccount.getBalance().getBalance() < amount) {
             throw new IllegalArgumentException("Недостаточно средств на балансе");
         }
 
@@ -59,10 +60,10 @@ public class InvestmentService {
 
             if (amount > previousAmount) {
                 int difference = amount - previousAmount;
-                userBalance.setBalance(userBalance.getBalance() - difference);
+                balanceService.add(userAccount.getId(), difference);
             } else {
                 int difference = previousAmount - amount;
-                userBalance.setBalance(userBalance.getBalance() + difference);
+                balanceService.deduct(userAccount.getId(), difference);
             }
 
             existingInvestment.setUpdatedAt(LocalDateTime.now());
@@ -78,17 +79,29 @@ public class InvestmentService {
                     .userAccount(userAccount)
                     .build();
 
-            userBalance.setBalance(userBalance.getBalance() - amount);
+            balanceService.deduct(userAccount.getId(), amount);
 
             investmentRepository.save(newInvestment);
-
             response = mapper.investmentToResponse(newInvestment);
         }
 
-        balanceService.saveBalance(userBalance);
-
         return response;
+    }
 
+    @Transactional
+    public void deleteInvestment(
+            String investorAccessToken,
+            Long filmAdId
+    ) {
+
+        UserAccount investor = userDetailsService.findUserByJwt(investorAccessToken);
+        Investment deletedInvestment = investmentRepository.findByUserAccountIdAndFilmAdId(investor.getId(), filmAdId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException("Не удалось найти инвестицию")
+                );
+
+        balanceService.add(investor.getId(), deletedInvestment.getAmount());
+        deleteInvestment(deletedInvestment);
     }
 
     public List<InvestmentResponse> getUserAccountInvestments(
@@ -100,5 +113,9 @@ public class InvestmentService {
         return investments.stream()
                 .map(mapper::investmentToResponse)
                 .collect(Collectors.toList());
+    }
+
+    private void deleteInvestment(Investment investment) {
+        investmentRepository.delete(investment);
     }
 }

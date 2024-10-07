@@ -2,15 +2,15 @@ package com.dev.indianadapi.film_ad;
 
 import com.dev.indianadapi.authentication.entity.UserAccount;
 import com.dev.indianadapi.authentication.service.CustomUserDetailsService;
-import com.dev.indianadapi.authentication.service.UserAccountService;
+import com.dev.indianadapi.balance.Balance;
 import com.dev.indianadapi.film_ad.dto.FilmAdCatalogResponse;
 import com.dev.indianadapi.film_ad.dto.FilmAdRequest;
 import com.dev.indianadapi.film_ad.dto.FilmAdResponse;
-import com.dev.indianadapi.film_ad.tag.Tag;
 import com.dev.indianadapi.film_ad.tag.TagService;
 import com.dev.indianadapi.s3.S3Service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FilmAdService {
 
     private final FilmAdRepository repository;
@@ -39,24 +40,50 @@ public class FilmAdService {
             String accessToken
     ) {
 
+        UserAccount userAccount = userDetailsService.findUserByJwt(accessToken);
+        int totalCost = getTotalCost(request, userAccount);
+        userDetailsService.saveUser(userAccount);
+
         FilmAd filmAd = FilmAd.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
-                .imageUrl(s3Service.uploadImage(image, "film_ad_image"))
-                .userAccount(
-                        userDetailsService.findUserByJwt(accessToken)
-                )
+                .imageUrl(s3Service.uploadImage(image, "filmAdImage"))
+                .userAccount(userAccount)
                 .tags(
                         request.getTagsSlugs().stream().map(
                                 tagService::findTagBySlug
                         )
                         .collect(Collectors.toSet())
                 )
+                .creationCost(totalCost)
                 .build();
+
+        log.info("Trying to create ad");
 
         return filmAdMapper.filmAdToResponse(
                 repository.save(filmAd)
         );
+    }
+
+    private int getTotalCost(FilmAdRequest request, UserAccount userAccount) {
+        Balance userAccountBalance = userAccount.getBalance();
+
+        int numTags = request.getTagsSlugs().size();
+
+        int baseCost = 10;
+        int totalCost = 0;
+        for (int i = 1; i <= numTags; i++) {
+            totalCost += (int) (baseCost * Math.pow(10, i-1));
+        }
+
+        if (userAccountBalance.getBalance() < totalCost) {
+            throw new IllegalArgumentException("У вас недостаточно средств");
+        }
+
+        log.info("total cost {}", totalCost);
+
+        userAccountBalance.setBalance(userAccountBalance.getBalance() - totalCost);
+        return totalCost;
     }
 
     public FilmAdCatalogResponse findAllFilmAds(
@@ -97,11 +124,12 @@ public class FilmAdService {
                 .totalElements(filmAds.getTotalElements())
                 .totalPages(filmAds.getTotalPages())
                 .isLast(filmAds.isLast())
+
                 .build();
 
     }
 
-    public FilmAdResponse getFilmAdById(
+    public FilmAdResponse getFilmAdByIdAndViewerJwt(
             Long filmAdId,
             String viewerJwt
     ) {
@@ -133,6 +161,14 @@ public class FilmAdService {
         return repository.findById(filmAdId).orElseThrow(
                 () -> new UsernameNotFoundException("Не удалось найти рекламу")
         );
+    }
+
+    public List<FilmAd> findTop10OrderByTotalInvestment() {
+        return repository.findTop10ByOrderByTotalInvestmentDesc();
+    }
+
+    public List<FilmAd> findAllOutsideTop() {
+        return repository.findAllOutsideTop10();
     }
 
 }

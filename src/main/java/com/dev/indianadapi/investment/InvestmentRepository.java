@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface InvestmentRepository extends JpaRepository<Investment, Long> {
 
     List<Investment> findByUserAccountId(Long userAccountId);
-    Optional<Investment> findByUserAccountIdAndFilmAdId(Long userAccountId, Long filmAdId);
 
+    Optional<Investment> findByUserAccountIdAndFilmAdId(Long userAccountId, Long filmAdId);
 }

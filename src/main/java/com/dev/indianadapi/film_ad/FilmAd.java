@@ -2,10 +2,12 @@ package com.dev.indianadapi.film_ad;
 
 import com.dev.indianadapi.authentication.entity.UserAccount;
 import com.dev.indianadapi.film_ad.tag.Tag;
+import com.dev.indianadapi.investment.Investment;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -27,7 +29,7 @@ public class FilmAd {
 
     @ManyToMany
     @JoinTable(
-            name = "film_ad_views",
+            name = "film_ads_views",
             joinColumns = @JoinColumn(name = "film_ad_id"),
             inverseJoinColumns = @JoinColumn(name = "user_account_id")
     )
@@ -36,7 +38,8 @@ public class FilmAd {
     @Transient
     private Integer views;
 
-    private Integer investedCoins;
+    private Integer creationCost;
+    private Integer totalInvestment;
 
     @ManyToOne
     @JoinColumn(name = "user_account_id", nullable = false)
@@ -50,6 +53,8 @@ public class FilmAd {
     )
     private Set<Tag> tags = new HashSet<>();
 
+    @OneToMany(mappedBy = "filmAd", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Investment> investments;
 
     public Integer getViews() {
 

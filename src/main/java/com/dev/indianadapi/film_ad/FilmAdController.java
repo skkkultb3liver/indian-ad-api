@@ -3,15 +3,12 @@ package com.dev.indianadapi.film_ad;
 import com.dev.indianadapi.film_ad.dto.FilmAdCatalogResponse;
 import com.dev.indianadapi.film_ad.dto.FilmAdRequest;
 import com.dev.indianadapi.film_ad.dto.FilmAdResponse;
-import com.dev.indianadapi.s3.S3Service;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -49,7 +46,7 @@ public class FilmAdController {
             @RequestHeader("Authorization") String jwt
     ) {
 
-        return ResponseEntity.ok(filmAdService.getFilmAdById(filmAdId, jwt));
+        return ResponseEntity.ok(filmAdService.getFilmAdByIdAndViewerJwt(filmAdId, jwt));
     }
 
 

@@ -14,11 +14,11 @@ public class BalanceController {
     private final BalanceService balanceService;
 
     @GetMapping("/{userAccountId}")
-    public ResponseEntity<BalanceResponse> getBalance(@PathVariable Long userAccountId) {
+    public ResponseEntity<Balance> getBalance(@PathVariable Long userAccountId) {
 
         log.info("Getting balance for user {}", userAccountId);
 
-        BalanceResponse response = balanceService.getBalanceByUserAccountId(userAccountId);
+        Balance response = balanceService.getBalanceByUserAccountId(userAccountId);
         return ResponseEntity.ok(response);
     }
 
